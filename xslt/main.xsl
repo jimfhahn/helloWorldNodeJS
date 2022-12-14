@@ -17,7 +17,7 @@
   <!-- stylesheet parameters -->
 
   <!-- base for minting URIs -->
-  <xsl:param name="baseuri" select="'http://example.org/'"/>
+  <xsl:param name="baseuri" select="'_:b'"/>
 
   <!--
       MARC field in which to find the record ID
