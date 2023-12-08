@@ -32,6 +32,7 @@
       -->
       <xsl:when test="substring(.,7,1) = 'q'">Hub</xsl:when>
       <!-- <xsl:when test="substring(.,7,1) = 'a' and contains('abims',substring(.,8,1))">Print</xsl:when> -->
+      <xsl:when test="../marc:datafield[@tag='758' and marc:subfield[@code='4']='http://id.loc.gov/ontologies/bibframe/instanceOf']">SecondaryInstance</xsl:when>
     </xsl:choose>
   </xsl:template>
   
@@ -134,9 +135,18 @@
       <xsl:when test="$serialization = 'rdfxml'">
         <!-- setting rdf:type for Hub is redundant here, already set in Work template -->
         <xsl:if test="$pInstanceType != '' and $pInstanceType != 'Hub'">
-          <rdf:type>
-            <xsl:attribute name="rdf:resource"><xsl:value-of select="concat($bf,$pInstanceType)"/></xsl:attribute>
-          </rdf:type>
+          <xsl:choose>
+            <xsl:when test="$pInstanceType = 'SecondaryInstance'">
+              <rdf:type>
+                <xsl:attribute name="rdf:resource"><xsl:value-of select="concat($bflc,$pInstanceType)"/></xsl:attribute>
+              </rdf:type>
+            </xsl:when>
+            <xsl:otherwise>
+              <rdf:type>
+                <xsl:attribute name="rdf:resource"><xsl:value-of select="concat($bf,$pInstanceType)"/></xsl:attribute>
+              </rdf:type>
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:if>
         <!-- Output an issuance type based on Leader/07 if there is no 334 present in record. -->
         <xsl:if test="$issuanceUri != '' and not (../marc:datafield[@tag = '334'])">

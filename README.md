@@ -1,5 +1,5 @@
 # marc2bibframe2JS
-marc2bibframe2 v2.2.1 in JS
+marc2bibframe2 v2.4 in JS
 #
 It's all in the index.html
 

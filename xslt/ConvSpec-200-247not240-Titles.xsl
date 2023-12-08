@@ -323,7 +323,16 @@
   <!-- bf:Instance properties from MARC 245 -->
   <xsl:template match="marc:datafield[@tag='245' or (@tag='880' and substring(marc:subfield[@code='6'],1,3)='245')]" mode="instance">
     <xsl:param name="serialization" select="'rdfxml'"/>
-    <xsl:variable name="vOccurrence">
+    <xsl:param name="pInstanceType" />
+    <xsl:variable name="output245">
+      <xsl:choose>
+        <xsl:when test="$pInstanceType = 'SecondaryInstance' and ../marc:datafield[@tag='856' or @tag='859']">SKIP</xsl:when>
+        <xsl:when test="$pInstanceType != 'SecondaryInstance'">TRUE</xsl:when>
+        <xsl:otherwise>TRUE</xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:if test="$output245!='SKIP'">
+      <xsl:variable name="vOccurrence">
       <xsl:value-of select="substring(substring-after(marc:subfield[@code='6'],'-'),1,2)"/>
     </xsl:variable>
     <xsl:variable name="label">
@@ -363,23 +372,24 @@
     </xsl:if>
     <xsl:choose>
       <xsl:when test="$serialization='rdfxml'">
-        <bf:title>
-          <bf:Title>
-            <xsl:apply-templates mode="title245" select=".">
-              <xsl:with-param name="serialization" select="$serialization"/>
-              <xsl:with-param name="label" select="$label"/>
-            </xsl:apply-templates>
-            <!-- generate Title properties from linked 880 -->
-            <xsl:if test="@tag='245' and marc:subfield[@code='6']">
-              <xsl:apply-templates mode="title245" select="../marc:datafield[@tag='880' and substring(marc:subfield[@code='6'],1,3)='245' and substring(substring-after(marc:subfield[@code='6'],'-'),1,2)=$vOccurrence]">
-                <xsl:with-param name="serialization" select="$serialization"/>
-                <xsl:with-param name="label" select="$vLinkedLabel"/>
-              </xsl:apply-templates>
-            </xsl:if>
-          </bf:Title>
-        </bf:title>
+                <bf:title>
+                  <bf:Title>
+                <xsl:apply-templates mode="title245" select=".">
+                  <xsl:with-param name="serialization" select="$serialization"/>
+                  <xsl:with-param name="label" select="$label"/>
+                </xsl:apply-templates>
+                <!-- generate Title properties from linked 880 -->
+                <xsl:if test="@tag='245' and marc:subfield[@code='6']">
+                  <xsl:apply-templates mode="title245" select="../marc:datafield[@tag='880' and substring(marc:subfield[@code='6'],1,3)='245' and substring(substring-after(marc:subfield[@code='6'],'-'),1,2)=$vOccurrence]">
+                    <xsl:with-param name="serialization" select="$serialization"/>
+                    <xsl:with-param name="label" select="$vLinkedLabel"/>
+                  </xsl:apply-templates>
+                </xsl:if>
+                  </bf:Title>
+                </bf:title>
       </xsl:when>
     </xsl:choose>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="marc:datafield[@tag='245' or @tag='880']" mode="instance245">
